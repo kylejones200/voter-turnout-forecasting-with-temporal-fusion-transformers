@@ -1,0 +1,25 @@
+============================================================
+Voter Turnout Analysis Summary (Modern Era)
+============================================================
+
+Data Range: 1946 - 2022
+Total Elections: 39
+  Presidential: 19
+  Midterm: 20
+
+Presidential Elections:
+  Mean: 58.3%
+  Std: 4.4%
+
+Midterm Elections:
+  Mean: 42.2%
+  Std: 4.0%
+
+Presidential Bump: 16.1%
+
+Long-term Trend:
+  Slope: -0.0067% per year
+  R-squared: 0.0003
+
+Highest Turnout: 2020 (66.6%, Presidential)
+Lowest Turnout: 2014 (36.7%, Midterm)
