@@ -13,6 +13,24 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 from sklearn.linear_model import LinearRegression
 
 
+import logging
+import yaml
+
+def load_config(config_path=None):
+    """Load configuration from YAML file."""
+    if config_path is None:
+        config_path = Path(__file__).parent / 'config.yaml'
+    if not config_path.exists():
+        return {}
+    with open(config_path) as _f:
+        import yaml as _yaml
+        return _yaml.safe_load(_f) or {}
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 def setup_minimalist_style():
     """Configure matplotlib for minimalist plotting style."""
     plt.style.use('default')
@@ -101,25 +119,12 @@ def plot_time_series_with_groups(
             group_data = df[df[group_col] == group_val].sort_values(time_col)
             
             # Get color and linestyle
-            if colors is None:
-                color = default_colors[i % len(default_colors)]
-            elif isinstance(colors, dict):
-                color = colors.get(group_val, default_colors[i % len(default_colors)])
-            else:
-                color = colors[i % len(colors)]
+            color = np.select([colors is None, isinstance(colors, dict)], [default_colors[i % len(default_colors)], colors.get(group_val, default_colors[i % len(default_colors)])], default=colors[i % len(colors)])
             
-            if linestyles is None:
-                linestyle = default_linestyles[i % len(default_linestyles)]
-            elif isinstance(linestyles, dict):
-                linestyle = linestyles.get(group_val, default_linestyles[i % len(default_linestyles)])
-            else:
-                linestyle = linestyles[i % len(linestyles)]
+            linestyle = np.select([linestyles is None, isinstance(linestyles, dict)], [default_linestyles[i % len(default_linestyles)], linestyles.get(group_val, default_linestyles[i % len(default_linestyles)])], default=linestyles[i % len(linestyles)])
             
             # Get label
-            if group_labels is None:
-                label = str(group_val)
-            else:
-                label = group_labels.get(group_val, str(group_val))
+            label = np.where(group_labels is None, str(group_val), group_labels.get(group_val, str(group_val)))
             
             ax.plot(group_data[time_col], group_data[value_col],
                     linewidth=1.5, color=color, linestyle=linestyle, label=label)
@@ -137,7 +142,7 @@ def plot_time_series_with_groups(
     
     if save_path:
         plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
-        print(f"Saved figure to '{save_path}'")
+        logger.info(f"Saved figure to '{save_path}'")
     
     return fig, ax
 
@@ -192,10 +197,7 @@ def plot_trend_with_label(
     # Add label at the end of the trendline
     last_time = df[time_col].iloc[-1]
     # Handle both array and Series
-    if hasattr(trend_values, 'iloc'):
-        last_trend_value = trend_values.iloc[-1]
-    else:
-        last_trend_value = trend_values[-1]
+    last_trend_value = np.where(hasattr(trend_values, 'iloc'), trend_values.iloc[-1], trend_values[-1])
     ax.text(last_time, last_trend_value, f' {label_text}', 
             fontsize=11, verticalalignment='center', 
             bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
@@ -208,7 +210,7 @@ def plot_trend_with_label(
     
     if save_path:
         plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
-        print(f"Saved figure to '{save_path}'")
+        logger.info(f"Saved figure to '{save_path}'")
     
     return fig, ax
 
@@ -279,25 +281,12 @@ def plot_detrended_with_groups(
         group_detrended = np.array(detrended_values)[group_mask]
         
         # Get color and linestyle
-        if colors is None:
-            color = default_colors[i % len(default_colors)]
-        elif isinstance(colors, dict):
-            color = colors.get(group_val, default_colors[i % len(default_colors)])
-        else:
-            color = colors[i % len(colors)]
+        color = np.select([colors is None, isinstance(colors, dict)], [default_colors[i % len(default_colors)], colors.get(group_val, default_colors[i % len(default_colors)])], default=colors[i % len(colors)])
         
-        if linestyles is None:
-            linestyle = default_linestyles[i % len(default_linestyles)]
-        elif isinstance(linestyles, dict):
-            linestyle = linestyles.get(group_val, default_linestyles[i % len(default_linestyles)])
-        else:
-            linestyle = linestyles[i % len(linestyles)]
+        linestyle = np.select([linestyles is None, isinstance(linestyles, dict)], [default_linestyles[i % len(default_linestyles)], linestyles.get(group_val, default_linestyles[i % len(default_linestyles)])], default=linestyles[i % len(linestyles)])
         
         # Get label
-        if group_labels is None:
-            label = str(group_val)
-        else:
-            label = group_labels.get(group_val, str(group_val))
+        label = np.where(group_labels is None, str(group_val), group_labels.get(group_val, str(group_val)))
         
         ax.plot(group_data[time_col], group_detrended,
                 linewidth=1.5, color=color, linestyle=linestyle, label=label)
@@ -314,7 +303,7 @@ def plot_detrended_with_groups(
     
     if save_path:
         plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
-        print(f"Saved figure to '{save_path}'")
+        logger.info(f"Saved figure to '{save_path}'")
     
     return fig, ax
 
@@ -410,15 +399,9 @@ def plot_forecast_with_history(
     
     # Add label at end of forecast line
     # Handle both array and Series
-    if hasattr(future_times, 'iloc'):
-        last_forecast_time = future_times.iloc[-1]
-    else:
-        last_forecast_time = future_times[-1]
+    last_forecast_time = np.where(hasattr(future_times, 'iloc'), future_times.iloc[-1], future_times[-1])
     
-    if hasattr(forecast_values, 'iloc'):
-        last_forecast_value = forecast_values.iloc[-1]
-    else:
-        last_forecast_value = forecast_values[-1]
+    last_forecast_value = np.where(hasattr(forecast_values, 'iloc'), forecast_values.iloc[-1], forecast_values[-1])
     ax.text(last_forecast_time, last_forecast_value, f' {forecast_label}', 
             fontsize=11, verticalalignment='center', 
             bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
@@ -436,7 +419,7 @@ def plot_forecast_with_history(
     
     if save_path:
         plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
-        print(f"Saved figure to '{save_path}'")
+        logger.info(f"Saved figure to '{save_path}'")
     
     return fig, ax
 
@@ -544,12 +527,12 @@ def plot_statistical_decomposition(
         
         if save_path:
             plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
-            print(f"Saved decomposition to '{save_path}'")
+            logger.info(f"Saved decomposition to '{save_path}'")
         
         return fig, decomposition
         
     except Exception as e:
-        print(f"Statistical decomposition failed: {e}")
+        logger.error(f"Statistical decomposition failed: {e}")
         return None, None
 
 
@@ -558,7 +541,7 @@ def example_usage():
     """Example of how to use the plotting utilities."""
     # Create sample data
     years = np.arange(2000, 2023, 2)
-    np.random.seed(42)
+    np.random.seed(config.get('data', {}).get('seed', 42))
     values = 50 + 0.5 * (years - 2000) + np.random.randn(len(years)) * 5
     
     df = pd.DataFrame({
@@ -590,7 +573,7 @@ def example_usage():
     )
     plt.close()
     
-    print("Example plots created!")
+    logger.info("Example plots created!")
 
 
 if __name__ == "__main__":

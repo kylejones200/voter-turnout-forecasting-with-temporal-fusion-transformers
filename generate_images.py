@@ -3,6 +3,17 @@
 Generated script to create Tufte-style visualizations
 """
 import logging
+import yaml
+
+
+def load_config(config_path=None):
+    """Load configuration from YAML file."""
+    if config_path is None:
+        config_path = Path(__file__).parent / 'config.yaml'
+    if not config_path.exists():
+        return {}
+    with open(config_path) as _f:
+        return _yaml.safe_load(_f) or {}
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +24,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # Set random seeds
-np.random.seed(42)
+np.random.seed(config.get('data', {}).get('seed', 42))
 
 # Tufte-style configuration
 plt.rcParams.update({
@@ -76,7 +87,7 @@ def load_turnout_series(csv_path: Path) -> tuple[pd.DataFrame, pd.Series]:
     logger.info(f"\nFirst 10 values:\n{ts.head(10)}")
     logger.info(f"\nLast 10 values:\n{ts.tail(10)}")
 
-    fig, ax = plt.subplots(figsize=(14, 6))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [14, 6])))
     ax.plot(ts.index, ts.values, marker="o", linewidth=2, markersize=4, alpha=0.7)
     ax.set_title("US Presidential Voter Turnout (1789-2024)", fontsize=14, fontweight="bold")
     ax.set_ylabel("Turnout Rate (%)", fontsize=11)
@@ -152,7 +163,7 @@ def train_tft(
 
     # Ensure reproducibility
     torch.manual_seed(42)
-    np.random.seed(42)
+    np.random.seed(config.get('data', {}).get('seed', 42))
 
     tft = TemporalFusionTransformer.from_dataset(
         training,

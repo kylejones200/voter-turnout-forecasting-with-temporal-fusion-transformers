@@ -11,6 +11,23 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from pathlib import Path
 
+import logging
+import yaml
+
+def load_config(config_path=None):
+    """Load configuration from YAML file."""
+    if config_path is None:
+        config_path = Path(__file__).parent / 'config.yaml'
+    if not config_path.exists():
+        return {}
+    with open(config_path) as _f:
+        return _yaml.safe_load(_f) or {}
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 # Set up paths
 BASE_DIR = Path(__file__).parent
 DATA_PATH = BASE_DIR.parent / "2025-11-12_us_voter_turnout.csv"
@@ -67,26 +84,26 @@ def analyze_turnout_patterns(df):
     presidential_elections = df[df['Is_Presidential']]
     midterm_elections = df[~df['Is_Presidential']]
     
-    print("\n" + "=" * 60)
-    print("Turnout Analysis - Actual US Data")
-    print("=" * 60)
-    print(f"Total Elections: {len(df)}")
-    print(f"  Presidential: {len(presidential_elections)}")
-    print(f"  Midterm: {len(midterm_elections)}")
-    print(f"\nPresidential Elections:")
-    print(f"  Mean: {presidential_elections['Turnout_Rate'].mean():.1f}%")
-    print(f"  Std: {presidential_elections['Turnout_Rate'].std():.1f}%")
-    print(f"  Min: {presidential_elections['Turnout_Rate'].min():.1f}%")
-    print(f"  Max: {presidential_elections['Turnout_Rate'].max():.1f}%")
-    print(f"\nMidterm Elections:")
-    print(f"  Mean: {midterm_elections['Turnout_Rate'].mean():.1f}%")
-    print(f"  Std: {midterm_elections['Turnout_Rate'].std():.1f}%")
-    print(f"  Min: {midterm_elections['Turnout_Rate'].min():.1f}%")
-    print(f"  Max: {midterm_elections['Turnout_Rate'].max():.1f}%")
+    logger.info("\n" + "=" * 60)
+    logger.info("Turnout Analysis - Actual US Data")
+    logger.info("=" * 60)
+    logger.info(f"Total Elections: {len(df)}")
+    logger.info(f"  Presidential: {len(presidential_elections)}")
+    logger.info(f"  Midterm: {len(midterm_elections)}")
+    logger.info(f"\nPresidential Elections:")
+    logger.info(f"  Mean: {presidential_elections['Turnout_Rate'].mean():.1f}%")
+    logger.info(f"  Std: {presidential_elections['Turnout_Rate'].std():.1f}%")
+    logger.info(f"  Min: {presidential_elections['Turnout_Rate'].min():.1f}%")
+    logger.info(f"  Max: {presidential_elections['Turnout_Rate'].max():.1f}%")
+    logger.info(f"\nMidterm Elections:")
+    logger.info(f"  Mean: {midterm_elections['Turnout_Rate'].mean():.1f}%")
+    logger.info(f"  Std: {midterm_elections['Turnout_Rate'].std():.1f}%")
+    logger.info(f"  Min: {midterm_elections['Turnout_Rate'].min():.1f}%")
+    logger.info(f"  Max: {midterm_elections['Turnout_Rate'].max():.1f}%")
     
     presidential_bump = (presidential_elections['Turnout_Rate'].mean() - 
                          midterm_elections['Turnout_Rate'].mean())
-    print(f"\nAverage Presidential Bump: {presidential_bump:.1f}%")
+    logger.info(f"\nAverage Presidential Bump: {presidential_bump:.1f}%")
     
     # Statistical test
     from scipy import stats
@@ -94,10 +111,10 @@ def analyze_turnout_patterns(df):
         presidential_elections['Turnout_Rate'],
         midterm_elections['Turnout_Rate']
     )
-    print(f"\nT-test (presidential vs midterm):")
-    print(f"  t-statistic: {t_stat:.3f}")
-    print(f"  p-value: {p_value:.6f}")
-    print(f"  Significant difference: {'Yes' if p_value < 0.05 else 'No'}")
+    logger.info(f"\nT-test (presidential vs midterm):")
+    logger.info(f"  t-statistic: {t_stat:.3f}")
+    logger.info(f"  p-value: {p_value:.6f}")
+    logger.info(f"  Significant difference: {'Yes' if p_value < 0.05 else 'No'}")
     
     return presidential_elections, midterm_elections, presidential_bump
 
@@ -119,15 +136,15 @@ def estimate_trend(df):
     intercept = model.intercept_
     r_squared = model.score(X, y)
     
-    print(f"\nTrend Analysis:")
-    print(f"  Slope: {slope:.4f}% per year")
-    print(f"  Intercept: {intercept:.2f}%")
-    print(f"  R-squared: {r_squared:.4f}")
+    logger.info(f"\nTrend Analysis:")
+    logger.info(f"  Slope: {slope:.4f}% per year")
+    logger.info(f"  Intercept: {intercept:.2f}%")
+    logger.info(f"  R-squared: {r_squared:.4f}")
     
     if slope > 0:
-        print(f"  Interpretation: Turnout increasing by {slope:.4f}% per year on average")
+        logger.info(f"  Interpretation: Turnout increasing by {slope:.4f}% per year on average")
     else:
-        print(f"  Interpretation: Turnout decreasing by {abs(slope):.4f}% per year on average")
+        logger.info(f"  Interpretation: Turnout decreasing by {abs(slope):.4f}% per year on average")
     
     return trend, slope, intercept, r_squared
 
@@ -142,8 +159,8 @@ def calculate_presidential_effect(df, trend):
     
     avg_presidential_effect = np.mean(presidential_detrended) - np.mean(midterm_detrended)
     
-    print(f"\nPresidential Effect (after detrending):")
-    print(f"  Average effect: {avg_presidential_effect:.2f}%")
+    logger.info(f"\nPresidential Effect (after detrending):")
+    logger.info(f"  Average effect: {avg_presidential_effect:.2f}%")
     
     return avg_presidential_effect
 
@@ -158,7 +175,7 @@ def visualize_time_series(df, trend, images_dir, year_range_str=None):
         year_range_str = f"{df['Year'].min()}-{df['Year'].max()}"
     
     # Main time series plot: Presidential vs Midterm
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
     
     # Plot lines for presidential and midterm elections
     ax.plot(pres_data['Year'], pres_data['Turnout_Rate'], 
@@ -174,10 +191,10 @@ def visualize_time_series(df, trend, images_dir, year_range_str=None):
     plt.tight_layout()
     plt.savefig(images_dir / 'voter_turnout_time_series.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"Saved main time series to '{images_dir / 'voter_turnout_time_series.png'}'")
+    logger.info(f"Saved main time series to '{images_dir / 'voter_turnout_time_series.png'}'")
     
     # Trend plot
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
     ax.plot(df['Year'], trend, linewidth=1.5, color='black', linestyle='-')
     
     # Add label at the end of the trendline
@@ -199,7 +216,7 @@ def visualize_time_series(df, trend, images_dir, year_range_str=None):
     pres_detrended = detrended[df['Is_Presidential'].values]
     midterm_detrended = detrended[~df['Is_Presidential'].values]
     
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
     ax.plot(pres_data['Year'], pres_detrended, 
             linewidth=1.5, color='black', label='Presidential', linestyle='-')
     ax.plot(midterm_data['Year'], midterm_detrended, 
@@ -213,7 +230,7 @@ def visualize_time_series(df, trend, images_dir, year_range_str=None):
     plt.savefig(images_dir / 'voter_turnout_detrended.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"Saved all visualizations to '{images_dir}'")
+    logger.info(f"Saved all visualizations to '{images_dir}'")
 
 
 def perform_statistical_decomposition(df, images_dir):
@@ -267,11 +284,11 @@ def perform_statistical_decomposition(df, images_dir):
         plt.tight_layout()
         plt.savefig(images_dir / 'statistical_decomposition.png', dpi=300, bbox_inches='tight')
         plt.close()
-        print(f"Saved statistical decomposition to '{images_dir / 'statistical_decomposition.png'}'")
+        logger.info(f"Saved statistical decomposition to '{images_dir / 'statistical_decomposition.png'}'")
         
         return decomposition
     except Exception as e:
-        print(f"Statistical decomposition failed: {e}")
+        logger.error(f"Statistical decomposition failed: {e}")
         return None
 
 
@@ -293,7 +310,7 @@ def forecast_turnout(df, trend_model, n_years_ahead=10, images_dir=None):
     lower_bound = y_forecast - 1.96 * std_error
     
     # Minimalist forecast visualization
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
     
     # Historical data - separate lines for presidential and midterm
     pres_data = df[df['Is_Presidential']].sort_values('Year')
@@ -328,7 +345,7 @@ def forecast_turnout(df, trend_model, n_years_ahead=10, images_dir=None):
     plt.tight_layout()
     if images_dir:
         plt.savefig(images_dir / 'turnout_forecast.png', dpi=300, bbox_inches='tight')
-        print(f"Saved forecast to '{images_dir / 'turnout_forecast.png'}'")
+        logger.info(f"Saved forecast to '{images_dir / 'turnout_forecast.png'}'")
     plt.close()
     
     return future_years, y_forecast, lower_bound, upper_bound
@@ -358,27 +375,27 @@ def create_summary_statistics(df, pres_elections, midterm_elections,
 
 def run_analysis(start_year, images_dir, period_name):
     """Run analysis for a specific time period."""
-    print(f"\n{'=' * 60}")
-    print(f"Analysis: {period_name}")
-    print(f"{'=' * 60}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"Analysis: {period_name}")
+    logger.info(f"{'=' * 60}")
     
     # Load data
-    print(f"\n1. Loading voter turnout data ({start_year}+)...")
+    logger.info(f"\n1. Loading voter turnout data ({start_year}+)...")
     df = load_voter_turnout_data(DATA_PATH, start_year=start_year)
-    print(f"   Loaded {len(df)} election observations")
-    print(f"   Years: {df['Year'].min()} to {df['Year'].max()}")
+    logger.info(f"   Loaded {len(df)} election observations")
+    logger.info(f"   Years: {df['Year'].min()} to {df['Year'].max()}")
     
     # Analyze patterns
-    print("\n2. Analyzing turnout patterns...")
+    logger.info("\n2. Analyzing turnout patterns...")
     pres_elections, midterm_elections, presidential_bump = analyze_turnout_patterns(df)
     
     # Estimate trend
-    print("\n3. Estimating long-term trend...")
+    logger.info("\n3. Estimating long-term trend...")
     trend, slope, intercept, r_squared = estimate_trend(df)
     df['Trend'] = trend
     
     # Calculate presidential effect
-    print("\n4. Calculating presidential election effect...")
+    logger.info("\n4. Calculating presidential election effect...")
     avg_presidential_effect = calculate_presidential_effect(df, trend)
     
     # Create trend model for forecasting
@@ -386,21 +403,21 @@ def run_analysis(start_year, images_dir, period_name):
     trend_model.fit(df[['Year']].values, df['Turnout_Rate'].values)
     
     # Visualize
-    print("\n5. Creating visualizations...")
+    logger.info("\n5. Creating visualizations...")
     year_range_str = f"{df['Year'].min()}-{df['Year'].max()}"
     visualize_time_series(df, trend, images_dir, year_range_str)
     
     # Statistical decomposition
-    print("\n6. Performing statistical decomposition...")
+    logger.info("\n6. Performing statistical decomposition...")
     decomposition = perform_statistical_decomposition(df, images_dir)
     
     # Forecast
-    print("\n7. Forecasting future turnout...")
+    logger.info("\n7. Forecasting future turnout...")
     future_years, forecast, lower_bound, upper_bound = forecast_turnout(
         df, trend_model, n_years_ahead=10, images_dir=images_dir
     )
-    print(f"   Forecasted turnout for {future_years[-1]}: {forecast[-1]:.1f}%")
-    print(f"   (95% CI: {lower_bound[-1]:.1f}% - {upper_bound[-1]:.1f}%)")
+    logger.info(f"   Forecasted turnout for {future_years[-1]}: {forecast[-1]:.1f}%")
+    logger.info(f"   (95% CI: {lower_bound[-1]:.1f}% - {upper_bound[-1]:.1f}%)")
     
     return {
         'df': df,
@@ -414,10 +431,10 @@ def run_analysis(start_year, images_dir, period_name):
 
 def main():
     """Run complete analysis for both time periods."""
-    print("=" * 60)
-    print("Additive Time Series: Voter Turnout Analysis")
-    print("Generating images for both time periods")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Additive Time Series: Voter Turnout Analysis")
+    logger.info("Generating images for both time periods")
+    logger.info("=" * 60)
     
     # Run analysis for full period (1789-2022)
     results_full = run_analysis(
@@ -434,7 +451,7 @@ def main():
     )
     
     # Create summary for modern era (as requested)
-    print("\n8. Generating summary statistics...")
+    logger.info("\n8. Generating summary statistics...")
     summary = create_summary_statistics(
         results_modern['df'],
         results_modern['pres_elections'],
@@ -471,15 +488,15 @@ def main():
                f"({summary['lowest_turnout']['Turnout_Rate']:.1f}%, "
                f"{summary['lowest_turnout']['Election_Type']})\n")
     
-    print(f"   Saved summary to '{summary_path}'")
+    logger.info(f"   Saved summary to '{summary_path}'")
     
-    print("\n" + "=" * 60)
-    print("Analysis completed successfully!")
-    print("=" * 60)
-    print(f"\nAll outputs saved to: {BASE_DIR}")
-    print(f"  - Full period images: {IMAGES_DIR_FULL}")
-    print(f"  - Modern era images: {IMAGES_DIR_MODERN}")
-    print(f"  - Summary: {summary_path}")
+    logger.info("\n" + "=" * 60)
+    logger.info("Analysis completed successfully!")
+    logger.info("=" * 60)
+    logger.info(f"\nAll outputs saved to: {BASE_DIR}")
+    logger.info(f"  - Full period images: {IMAGES_DIR_FULL}")
+    logger.info(f"  - Modern era images: {IMAGES_DIR_MODERN}")
+    logger.info(f"  - Summary: {summary_path}")
     
     return summary
 

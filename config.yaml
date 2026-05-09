@@ -1,0 +1,17 @@
+data:
+  seed: 42
+  value_col: Value
+model:
+  alpha: 0.7
+  batch_size: 32
+  learning_rate: 0.03
+  hidden_size: 16
+  dropout: 0.1
+output:
+  figures_dir: images
+  figure_format: png
+  figure_dpi: 300
+  figsize:
+  - 14
+  - 6
+  font_family: serif
