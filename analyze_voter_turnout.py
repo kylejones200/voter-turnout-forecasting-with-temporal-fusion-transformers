@@ -165,7 +165,7 @@ def calculate_presidential_effect(df, trend):
     return avg_presidential_effect
 
 
-def visualize_time_series(df, trend, images_dir, year_range_str=None):
+def visualize_time_series(df, trend, images_dir, year_range_str=None, plot: bool = False):
     """Create minimalist time series visualizations."""
     pres_data = df[df['Is_Presidential']].sort_values('Year')
     midterm_data = df[~df['Is_Presidential']].sort_values('Year')
@@ -175,65 +175,66 @@ def visualize_time_series(df, trend, images_dir, year_range_str=None):
         year_range_str = f"{df['Year'].min()}-{df['Year'].max()}"
     
     # Main time series plot: Presidential vs Midterm
-    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
+    if plot:
+        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
     
     # Plot lines for presidential and midterm elections
-    ax.plot(pres_data['Year'], pres_data['Turnout_Rate'], 
-            linewidth=1.5, color='black', label='Presidential', linestyle='-')
-    ax.plot(midterm_data['Year'], midterm_data['Turnout_Rate'], 
-            linewidth=1.5, color='gray', label='Midterm', linestyle='--')
+        ax.plot(pres_data['Year'], pres_data['Turnout_Rate'], 
+                linewidth=1.5, color='black', label='Presidential', linestyle='-')
+        ax.plot(midterm_data['Year'], midterm_data['Turnout_Rate'], 
+                linewidth=1.5, color='gray', label='Midterm', linestyle='--')
     
-    ax.set_xlabel('Year', fontsize=12)
-    ax.set_ylabel('Turnout Rate (%)', fontsize=12)
-    ax.set_title(f'US Voter Turnout ({year_range_str})', fontsize=13, pad=10)
-    ax.legend(loc='upper right', frameon=False, fontsize=11)
+        ax.set_xlabel('Year', fontsize=12)
+        ax.set_ylabel('Turnout Rate (%)', fontsize=12)
+        ax.set_title(f'US Voter Turnout ({year_range_str})', fontsize=13, pad=10)
+        ax.legend(loc='upper right', frameon=False, fontsize=11)
     
-    plt.tight_layout()
-    plt.savefig(images_dir / 'voter_turnout_time_series.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    logger.info(f"Saved main time series to '{images_dir / 'voter_turnout_time_series.png'}'")
+        plt.tight_layout()
+        plt.savefig(images_dir / 'voter_turnout_time_series.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        logger.info(f"Saved main time series to '{images_dir / 'voter_turnout_time_series.png'}'")
     
     # Trend plot
-    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
-    ax.plot(df['Year'], trend, linewidth=1.5, color='black', linestyle='-')
+        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
+        ax.plot(df['Year'], trend, linewidth=1.5, color='black', linestyle='-')
     
     # Add label at the end of the trendline
-    last_year = df['Year'].iloc[-1]
-    last_trend_value = trend[-1]
-    ax.text(last_year, last_trend_value, ' Trend', 
-            fontsize=11, verticalalignment='center', 
-            bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
+        last_year = df['Year'].iloc[-1]
+        last_trend_value = trend[-1]
+        ax.text(last_year, last_trend_value, ' Trend', 
+                fontsize=11, verticalalignment='center', 
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
     
-    ax.set_xlabel('Year', fontsize=12)
-    ax.set_ylabel('Turnout Rate (%)', fontsize=12)
-    ax.set_title('Long-term Trend', fontsize=13, pad=10)
-    plt.tight_layout()
-    plt.savefig(images_dir / 'voter_turnout_trend.png', dpi=300, bbox_inches='tight')
-    plt.close()
+        ax.set_xlabel('Year', fontsize=12)
+        ax.set_ylabel('Turnout Rate (%)', fontsize=12)
+        ax.set_title('Long-term Trend', fontsize=13, pad=10)
+        plt.tight_layout()
+        plt.savefig(images_dir / 'voter_turnout_trend.png', dpi=300, bbox_inches='tight')
+        plt.close()
     
     # Detrended plot
-    detrended = df['Turnout_Rate'].values - trend
-    pres_detrended = detrended[df['Is_Presidential'].values]
-    midterm_detrended = detrended[~df['Is_Presidential'].values]
+        detrended = df['Turnout_Rate'].values - trend
+        pres_detrended = detrended[df['Is_Presidential'].values]
+        midterm_detrended = detrended[~df['Is_Presidential'].values]
     
-    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
-    ax.plot(pres_data['Year'], pres_detrended, 
-            linewidth=1.5, color='black', label='Presidential', linestyle='-')
-    ax.plot(midterm_data['Year'], midterm_detrended, 
-            linewidth=1.5, color='gray', label='Midterm', linestyle='--')
-    ax.axhline(y=0, color='black', linestyle=':', linewidth=0.8, alpha=0.5)
-    ax.set_xlabel('Year', fontsize=12)
-    ax.set_ylabel('Deviation from Trend (%)', fontsize=12)
-    ax.set_title('Detrended Data (Presidential Effect)', fontsize=13, pad=10)
-    ax.legend(loc='upper right', frameon=False, fontsize=11)
-    plt.tight_layout()
-    plt.savefig(images_dir / 'voter_turnout_detrended.png', dpi=300, bbox_inches='tight')
-    plt.close()
+        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
+        ax.plot(pres_data['Year'], pres_detrended, 
+                linewidth=1.5, color='black', label='Presidential', linestyle='-')
+        ax.plot(midterm_data['Year'], midterm_detrended, 
+                linewidth=1.5, color='gray', label='Midterm', linestyle='--')
+        ax.axhline(y=0, color='black', linestyle=':', linewidth=0.8, alpha=0.5)
+        ax.set_xlabel('Year', fontsize=12)
+        ax.set_ylabel('Deviation from Trend (%)', fontsize=12)
+        ax.set_title('Detrended Data (Presidential Effect)', fontsize=13, pad=10)
+        ax.legend(loc='upper right', frameon=False, fontsize=11)
+        plt.tight_layout()
+        plt.savefig(images_dir / 'voter_turnout_detrended.png', dpi=300, bbox_inches='tight')
+        plt.close()
     
     logger.info(f"Saved all visualizations to '{images_dir}'")
 
 
-def perform_statistical_decomposition(df, images_dir):
+def perform_statistical_decomposition(df, images_dir, plot: bool = False):
     """Perform statistical decomposition using statsmodels with minimalist styling."""
     df_sorted = df.sort_values('Year').copy()
     all_years = np.arange(df_sorted['Year'].min(), df_sorted['Year'].max() + 1, 2)
@@ -256,34 +257,35 @@ def perform_statistical_decomposition(df, images_dir):
         )
         
         # Create minimalist decomposition plot
-        fig, axes = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
+    if plot:
+            fig, axes = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
         
-        axes[0].plot(ts_full.index, ts_full.values, linewidth=1.5, color='black')
-        axes[0].set_ylabel('Original', fontsize=11)
-        year_range_str = f"{df_sorted['Year'].min()}-{df_sorted['Year'].max()}"
-        axes[0].set_title(f'Statistical Decomposition of Voter Turnout ({year_range_str})', fontsize=13, pad=10)
+            axes[0].plot(ts_full.index, ts_full.values, linewidth=1.5, color='black')
+            axes[0].set_ylabel('Original', fontsize=11)
+            year_range_str = f"{df_sorted['Year'].min()}-{df_sorted['Year'].max()}"
+            axes[0].set_title(f'Statistical Decomposition of Voter Turnout ({year_range_str})', fontsize=13, pad=10)
         
-        axes[1].plot(decomposition.trend.index, decomposition.trend.values, 
-                    linewidth=1.5, color='black')
-        axes[1].set_ylabel('Trend', fontsize=11)
+            axes[1].plot(decomposition.trend.index, decomposition.trend.values, 
+                        linewidth=1.5, color='black')
+            axes[1].set_ylabel('Trend', fontsize=11)
         
-        axes[2].plot(decomposition.seasonal.index, decomposition.seasonal.values, 
-                    linewidth=1.5, color='black')
-        axes[2].set_ylabel('Seasonal', fontsize=11)
+            axes[2].plot(decomposition.seasonal.index, decomposition.seasonal.values, 
+                        linewidth=1.5, color='black')
+            axes[2].set_ylabel('Seasonal', fontsize=11)
         
-        axes[3].plot(decomposition.resid.index, decomposition.resid.values, 
-                    linewidth=1.5, color='black')
-        axes[3].axhline(y=0, color='black', linestyle=':', linewidth=0.8, alpha=0.5)
-        axes[3].set_ylabel('Residual', fontsize=11)
-        axes[3].set_xlabel('Year', fontsize=12)
+            axes[3].plot(decomposition.resid.index, decomposition.resid.values, 
+                        linewidth=1.5, color='black')
+            axes[3].axhline(y=0, color='black', linestyle=':', linewidth=0.8, alpha=0.5)
+            axes[3].set_ylabel('Residual', fontsize=11)
+            axes[3].set_xlabel('Year', fontsize=12)
         
-        for ax in axes:
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
+            for ax in axes:
+                ax.spines['top'].set_visible(False)
+                ax.spines['right'].set_visible(False)
         
-        plt.tight_layout()
-        plt.savefig(images_dir / 'statistical_decomposition.png', dpi=300, bbox_inches='tight')
-        plt.close()
+            plt.tight_layout()
+            plt.savefig(images_dir / 'statistical_decomposition.png', dpi=300, bbox_inches='tight')
+            plt.close()
         logger.info(f"Saved statistical decomposition to '{images_dir / 'statistical_decomposition.png'}'")
         
         return decomposition
@@ -292,7 +294,7 @@ def perform_statistical_decomposition(df, images_dir):
         return None
 
 
-def forecast_turnout(df, trend_model, n_years_ahead=10, images_dir=None):
+def forecast_turnout(df, trend_model, n_years_ahead=10, images_dir=None, plot: bool = False):
     """Forecast future turnout using linear trend with minimalist styling."""
     last_year = df['Year'].max()
     future_years = np.arange(last_year + 2, last_year + 2 + n_years_ahead * 2, 2)
@@ -310,43 +312,44 @@ def forecast_turnout(df, trend_model, n_years_ahead=10, images_dir=None):
     lower_bound = y_forecast - 1.96 * std_error
     
     # Minimalist forecast visualization
-    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
+    if plot:
+        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 6])))
     
     # Historical data - separate lines for presidential and midterm
-    pres_data = df[df['Is_Presidential']].sort_values('Year')
-    midterm_data = df[~df['Is_Presidential']].sort_values('Year')
+        pres_data = df[df['Is_Presidential']].sort_values('Year')
+        midterm_data = df[~df['Is_Presidential']].sort_values('Year')
     
-    ax.plot(pres_data['Year'], pres_data['Turnout_Rate'], 
-            linewidth=1.5, color='black', label='Presidential (Historical)', linestyle='-')
-    ax.plot(midterm_data['Year'], midterm_data['Turnout_Rate'], 
-            linewidth=1.5, color='gray', label='Midterm (Historical)', linestyle='--')
+        ax.plot(pres_data['Year'], pres_data['Turnout_Rate'], 
+                linewidth=1.5, color='black', label='Presidential (Historical)', linestyle='-')
+        ax.plot(midterm_data['Year'], midterm_data['Turnout_Rate'], 
+                linewidth=1.5, color='gray', label='Midterm (Historical)', linestyle='--')
     
     # Forecast
-    ax.plot(future_years, y_forecast, linewidth=1.5, color='black', 
-            linestyle=':')
-    ax.fill_between(future_years, lower_bound, upper_bound, 
-                    alpha=0.2, color='gray', label='95% CI')
+        ax.plot(future_years, y_forecast, linewidth=1.5, color='black', 
+                linestyle=':')
+        ax.fill_between(future_years, lower_bound, upper_bound, 
+                        alpha=0.2, color='gray', label='95% CI')
     
     # Add label at the end of the forecast trendline
-    last_forecast_year = future_years[-1]
-    last_forecast_value = y_forecast[-1]
-    ax.text(last_forecast_year, last_forecast_value, ' Forecast', 
-            fontsize=11, verticalalignment='center', 
-            bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
+        last_forecast_year = future_years[-1]
+        last_forecast_value = y_forecast[-1]
+        ax.text(last_forecast_year, last_forecast_value, ' Forecast', 
+                fontsize=11, verticalalignment='center', 
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
     
     # Vertical line at last data point
-    ax.axvline(x=last_year, color='black', linestyle=':', linewidth=0.8, alpha=0.5)
+        ax.axvline(x=last_year, color='black', linestyle=':', linewidth=0.8, alpha=0.5)
     
-    ax.set_xlabel('Year', fontsize=12)
-    ax.set_ylabel('Turnout Rate (%)', fontsize=12)
-    ax.set_title('Voter Turnout Forecast', fontsize=13, pad=10)
-    ax.legend(loc='upper right', frameon=False, fontsize=11)
+        ax.set_xlabel('Year', fontsize=12)
+        ax.set_ylabel('Turnout Rate (%)', fontsize=12)
+        ax.set_title('Voter Turnout Forecast', fontsize=13, pad=10)
+        ax.legend(loc='upper right', frameon=False, fontsize=11)
     
-    plt.tight_layout()
-    if images_dir:
-        plt.savefig(images_dir / 'turnout_forecast.png', dpi=300, bbox_inches='tight')
-        logger.info(f"Saved forecast to '{images_dir / 'turnout_forecast.png'}'")
-    plt.close()
+        plt.tight_layout()
+        if images_dir:
+            plt.savefig(images_dir / 'turnout_forecast.png', dpi=300, bbox_inches='tight')
+            logger.info(f"Saved forecast to '{images_dir / 'turnout_forecast.png'}'")
+        plt.close()
     
     return future_years, y_forecast, lower_bound, upper_bound
 
