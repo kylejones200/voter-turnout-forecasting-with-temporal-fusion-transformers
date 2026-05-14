@@ -2,6 +2,7 @@
 Complete Additive Time Series Example: Voter Turnout Analysis
 Using actual US voter turnout data from 1789-2022
 """
+import signalplot
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -40,18 +41,7 @@ IMAGES_DIR_MODERN.mkdir(exist_ok=True)
 
 # Set minimalist style
 plt.style.use('default')
-plt.rcParams.update({
-    'font.size': 11,
-    'axes.spines.top': False,
-    'axes.spines.right': False,
-    'axes.grid': False,
-        'figure.facecolor': 'white',
-    'axes.facecolor': 'white',
-    'axes.edgecolor': 'black',
-    'axes.linewidth': 0.5,
-    'xtick.major.width': 0.5,
-    'ytick.major.width': 0.5,
-})
+signalplot.apply(font_family='serif')
 
 
 def load_voter_turnout_data(data_path, start_year=1789):

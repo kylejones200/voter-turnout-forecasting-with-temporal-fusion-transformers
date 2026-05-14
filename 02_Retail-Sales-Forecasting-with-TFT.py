@@ -1,3 +1,4 @@
+import signalplot
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,12 +30,7 @@ logger.info(f"\nFirst 10 values:\n{ts.head(10)}")
 logger.info(f"\nLast 10 values:\n{ts.tail(10)}")
 
 # Visualize
-plt.rcParams.update({
-    'axes.grid': False,
-    'font.family': 'serif',
-    'axes.spines.top': False,
-    'axes.spines.right': False
-})
+signalplot.apply(font_family='serif')
 
 fig, ax = plt.subplots(figsize=(14, 6))
 ax.plot(ts.index, ts.values, marker='o', linewidth=2, markersize=4, alpha=0.7)
@@ -212,11 +208,6 @@ for model, metrics in results.items():
 
 # Plot comparison
 fig, ax = plt.subplots(figsize=(14, 7))
-plt.rcParams.update({
-    'font.family': 'serif',
-    'axes.spines.top': False,
-    'axes.spines.right': False
-})
 
 # Plot historical data
 historical_dates = ts.index[:train_end_idx]

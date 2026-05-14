@@ -5,6 +5,7 @@ A reusable module for creating clean, minimalist time series visualizations.
 Designed for publication-quality figures with trendline labels at the end of lines.
 """
 
+import signalplot
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -34,18 +35,7 @@ logger = logging.getLogger(__name__)
 def setup_minimalist_style():
     """Configure matplotlib for minimalist plotting style."""
     plt.style.use('default')
-    plt.rcParams.update({
-        'font.size': 11,
-        'axes.spines.top': False,
-        'axes.spines.right': False,
-        'axes.grid': False,
-                'figure.facecolor': 'white',
-        'axes.facecolor': 'white',
-        'axes.edgecolor': 'black',
-        'axes.linewidth': 0.5,
-        'xtick.major.width': 0.5,
-        'ytick.major.width': 0.5,
-    })
+    signalplot.apply(font_family='serif')
 
 
 def plot_time_series_with_groups(
