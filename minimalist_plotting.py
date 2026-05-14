@@ -527,7 +527,7 @@ def plot_statistical_decomposition(
         return fig, decomposition
         
     except Exception as e:
-        logger.error(f"Statistical decomposition failed: {e}")
+        logger.error(f"Statistical decomposition failed: {e}", exc_info=True)
         return None, None
 
 

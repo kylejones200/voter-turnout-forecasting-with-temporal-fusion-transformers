@@ -278,7 +278,7 @@ def perform_statistical_decomposition(df, images_dir, plot: bool = False):
         
         return decomposition
     except Exception as e:
-        logger.error(f"Statistical decomposition failed: {e}")
+        logger.error(f"Statistical decomposition failed: {e}", exc_info=True)
         return None
 
 
