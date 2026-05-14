@@ -376,9 +376,7 @@ def create_summary_statistics(df, pres_elections, midterm_elections,
 
 def run_analysis(start_year, images_dir, period_name):
     """Run analysis for a specific time period."""
-    logger.info(f"\n{'=' * 60}")
-    logger.info(f"Analysis: {period_name}")
-    logger.info(f"{'=' * 60}")
+    logger.info("=== Analysis: {period_name} ===")
     
     # Load data
     logger.info(f"\n1. Loading voter turnout data ({start_year}+)...")
