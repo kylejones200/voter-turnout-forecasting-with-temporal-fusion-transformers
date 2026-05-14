@@ -222,7 +222,6 @@ def evaluate_tft_and_arima(
     max_prediction_length: int,
 ):
     """Run TFT and ARIMA forecasts and compute metrics."""
-    import torch
     from sklearn.metrics import mean_absolute_error, mean_squared_error
     from statsmodels.tsa.arima.model import ARIMA
 
@@ -367,9 +366,7 @@ def plot_forecast_comparison(
 
 def save_model_and_dataset(best_tft, training, val_dataloader):
     """Persist the trained model and dataset for future inference."""
-    import torch
     import pickle
-    from pytorch_forecasting import TemporalFusionTransformer
 
     torch.save(best_tft.state_dict(), "tft_model.pth")
 
