@@ -268,9 +268,7 @@ def evaluate_tft_and_arima(
         }
     )
 
-    logger.info("\n" + "=" * 60)
-    logger.info("FORECAST COMPARISON")
-    logger.info("=" * 60)
+    logger.info("=== FORECAST COMPARISON ===")
     logger.info(comparison_df.to_string(index=False))
 
     results = {
@@ -278,11 +276,8 @@ def evaluate_tft_and_arima(
         "ARIMA": {"MAE": arima_mae, "RMSE": arima_rmse},
     }
 
-    logger.info("\n" + "=" * 60)
-    logger.info("METRICS COMPARISON")
-    logger.info("=" * 60)
+    logger.info("=== METRICS COMPARISON ===")
     logger.info(f"{'Model':<10} {'MAE (%)':<12} {'RMSE (%)':<12}")
-    logger.info("-" * 60)
     for model_name, metrics in results.items():
         logger.info(f"{model_name:<10} {metrics['MAE']:<12.2f} {metrics['RMSE']:<12.2f}")
 

@@ -196,9 +196,7 @@ comparison_df = pd.DataFrame({
     'ARIMA': arima_forecast[:len(ts_test)]
 })
 
-logger.info("\n" + "="*60)
-logger.info("FORECAST COMPARISON")
-logger.info("="*60)
+logger.info("=== FORECAST COMPARISON ===")
 logger.info(comparison_df.to_string(index=False))
 
 # Metrics comparison
@@ -207,11 +205,8 @@ results = {
     'ARIMA': {'MAE': arima_mae, 'RMSE': arima_rmse}
 }
 
-logger.info("\n" + "="*60)
-logger.info("METRICS COMPARISON")
-logger.info("="*60)
+logger.info("=== METRICS COMPARISON ===")
 logger.info(f"{'Model':<10} {'MAE (%)':<12} {'RMSE (%)':<12}")
-logger.info("-"*60)
 for model, metrics in results.items():
     logger.info(f"{model:<10} {metrics['MAE']:<12.2f} {metrics['RMSE']:<12.2f}")
 

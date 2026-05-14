@@ -84,9 +84,7 @@ def analyze_turnout_patterns(df):
     presidential_elections = df[df['Is_Presidential']]
     midterm_elections = df[~df['Is_Presidential']]
     
-    logger.info("\n" + "=" * 60)
-    logger.info("Turnout Analysis - Actual US Data")
-    logger.info("=" * 60)
+    logger.info("=== Turnout Analysis - Actual US Data ===")
     logger.info(f"Total Elections: {len(df)}")
     logger.info(f"  Presidential: {len(presidential_elections)}")
     logger.info(f"  Midterm: {len(midterm_elections)}")
@@ -434,10 +432,8 @@ def run_analysis(start_year, images_dir, period_name):
 
 def main():
     """Run complete analysis for both time periods."""
-    logger.info("=" * 60)
     logger.info("Additive Time Series: Voter Turnout Analysis")
     logger.info("Generating images for both time periods")
-    logger.info("=" * 60)
     
     # Run analysis for full period (1789-2022)
     results_full = run_analysis(
@@ -493,9 +489,7 @@ def main():
     
     logger.info(f"   Saved summary to '{summary_path}'")
     
-    logger.info("\n" + "=" * 60)
-    logger.info("Analysis completed successfully!")
-    logger.info("=" * 60)
+    logger.info("=== Analysis completed successfully! ===")
     logger.info(f"\nAll outputs saved to: {BASE_DIR}")
     logger.info(f"  - Full period images: {IMAGES_DIR_FULL}")
     logger.info(f"  - Modern era images: {IMAGES_DIR_MODERN}")
