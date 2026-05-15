@@ -2,32 +2,36 @@
 """
 Generated script to create Tufte-style visualizations
 """
-import signalplot
+
 import logging
+
+import signalplot
 
 
 def load_config(config_path=None):
     """Load configuration from YAML file."""
     if config_path is None:
-        config_path = Path(__file__).parent / 'config.yaml'
+        config_path = Path(__file__).parent / "config.yaml"
     if not config_path.exists():
         return {}
     with open(config_path) as _f:
         return _yaml.safe_load(_f) or {}
 
+
 logger = logging.getLogger(__name__)
 
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 # Set random seeds
 np.random.seed(42)
 
 # Tufte-style configuration
-signalplot.apply(font_family='serif')
+signalplot.apply(font_family="serif")
 
 images_dir = Path("images")
 images_dir.mkdir(exist_ok=True)
@@ -35,12 +39,14 @@ images_dir.mkdir(exist_ok=True)
 # Update all savefig calls to use images_dir
 original_savefig = plt.savefig
 
+
 def savefig_tufte(filename, **kwargs):
     """Wrapper to save figures in images directory with Tufte style"""
-    if not str(filename).startswith('/') and not str(filename).startswith('images/'):
+    if not str(filename).startswith("/") and not str(filename).startswith("images/"):
         filename = images_dir / filename
     original_savefig(filename, **kwargs)
     logger.info(f"Saved: {filename}")
+
 
 plt.savefig = savefig_tufte
 
@@ -48,7 +54,10 @@ plt.savefig = savefig_tufte
 # Helper functions
 # --------------------------------------------------------------------------------------
 
-def load_turnout_series(csv_path: Path, plot: bool = False) -> tuple[pd.DataFrame, pd.Series]:
+
+def load_turnout_series(
+    csv_path: Path, plot: bool = False
+) -> tuple[pd.DataFrame, pd.Series]:
     """Load and clean the voter turnout series, and plot the base time series."""
     df = pd.read_csv(csv_path)
     df["Year"] = pd.to_datetime(df["Year"], format="%Y")
@@ -64,9 +73,13 @@ def load_turnout_series(csv_path: Path, plot: bool = False) -> tuple[pd.DataFram
     logger.info(f"\nLast 10 values:\n{ts.tail(10)}")
 
     if plot:
-        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [14, 6])))
+        fig, ax = plt.subplots(
+            figsize=tuple(config.get("output", {}).get("figsize", [14, 6]))
+        )
         ax.plot(ts.index, ts.values, marker="o", linewidth=2, markersize=4, alpha=0.7)
-        ax.set_title("US Presidential Voter Turnout (1789-2024)", fontsize=14, fontweight="bold")
+        ax.set_title(
+            "US Presidential Voter Turnout (1789-2024)", fontsize=14, fontweight="bold"
+        )
         ax.set_ylabel("Turnout Rate (%)", fontsize=11)
         plt.tight_layout()
         plt.savefig("voter_turnout_series.png")
@@ -132,11 +145,11 @@ def train_tft(
     max_epochs: int = 30,
 ):
     """Train a TemporalFusionTransformer model and return the best checkpoint."""
+    import pytorch_lightning as pl
+    import torch
     from pytorch_forecasting import TemporalFusionTransformer
     from pytorch_forecasting.metrics import QuantileLoss
-    import pytorch_lightning as pl
     from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-    import torch
 
     # Ensure reproducibility
     torch.manual_seed(42)
@@ -254,7 +267,9 @@ def evaluate_tft_and_arima(
     logger.info("=== METRICS COMPARISON ===")
     logger.info(f"{'Model':<10} {'MAE (%)':<12} {'RMSE (%)':<12}")
     for model_name, metrics in results.items():
-        logger.info(f"{model_name:<10} {metrics['MAE']:<12.2f} {metrics['RMSE']:<12.2f}")
+        logger.info(
+            f"{model_name:<10} {metrics['MAE']:<12.2f} {metrics['RMSE']:<12.2f}"
+        )
 
     return (
         predictions,
@@ -278,7 +293,7 @@ def plot_forecast_comparison(
     if plot:
         fig, ax = plt.subplots(figsize=(14, 7))
 
-    # Historical data
+        # Historical data
         historical_dates = ts.index[:train_end_idx]
         ax.plot(
             historical_dates[-30:],
@@ -299,7 +314,7 @@ def plot_forecast_comparison(
             color="black",
         )
 
-    # TFT forecast with 80% interval
+        # TFT forecast with 80% interval
         tft_pred_lower = predictions.numpy()[: len(ts_test), 1]  # 10th percentile
         tft_pred_upper = predictions.numpy()[: len(ts_test), 5]  # 90th percentile
         ax.fill_between(
@@ -319,7 +334,7 @@ def plot_forecast_comparison(
             color="green",
         )
 
-    # ARIMA forecast
+        # ARIMA forecast
         ax.plot(
             ts_test.index,
             arima_forecast,
@@ -329,11 +344,15 @@ def plot_forecast_comparison(
             color="blue",
         )
 
-    # Forecast boundary
-        ax.axvline(ts_test.index[0], color="gray", linestyle=":", linewidth=1, alpha=0.5)
+        # Forecast boundary
+        ax.axvline(
+            ts_test.index[0], color="gray", linestyle=":", linewidth=1, alpha=0.5
+        )
 
         ax.set_ylabel("Turnout Rate (%)", fontsize=11)
-        ax.set_title("TFT vs ARIMA: Multi-Horizon Forecasting", fontsize=13, fontweight="bold")
+        ax.set_title(
+            "TFT vs ARIMA: Multi-Horizon Forecasting", fontsize=13, fontweight="bold"
+        )
         ax.legend(loc="best", frameon=True, fancybox=True, shadow=True)
         plt.tight_layout()
         plt.savefig("tft_vs_arima.png")
@@ -414,7 +433,9 @@ def main() -> None:
     )
 
     # Save model and dataset for downstream use
-    save_model_and_dataset(best_tft=best_tft, training=training, val_dataloader=val_loader)
+    save_model_and_dataset(
+        best_tft=best_tft, training=training, val_dataloader=val_loader
+    )
 
     logger.info("All images generated successfully!")
 
