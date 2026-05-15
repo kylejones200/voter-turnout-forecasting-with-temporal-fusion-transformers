@@ -4,7 +4,6 @@ Generated script to create Tufte-style visualizations
 """
 import signalplot
 import logging
-import yaml
 
 
 def load_config(config_path=None):
