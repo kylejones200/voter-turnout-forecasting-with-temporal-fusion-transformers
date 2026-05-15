@@ -2,3 +2,27 @@
 __pycache__/
 *.py[cod]
 *$py.class
+# Secrets 
+.env
+.env.*
+!.env.example
+.env.local
+credentials.json
+secrets.json
+service-account*.json
+*.pem
+*.key
+# Python / packaging
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+# Jupyter
+.ipynb_checkpoints/
+# Node (if used)
+node_modules/
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

@@ -490,7 +490,7 @@ def plot_statistical_decomposition(
         )
         
         # Create minimalist decomposition plot
-    if plot:
+        if plot:
             fig, axes = plt.subplots(4, 1, figsize=figsize, sharex=True)
         
             axes[0].plot(ts_full.index, ts_full.values, linewidth=1.5, color='black')

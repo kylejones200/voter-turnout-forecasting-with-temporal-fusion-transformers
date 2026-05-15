@@ -245,7 +245,7 @@ def perform_statistical_decomposition(df, images_dir, plot: bool = False):
         )
         
         # Create minimalist decomposition plot
-    if plot:
+        if plot:
             fig, axes = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
         
             axes[0].plot(ts_full.index, ts_full.values, linewidth=1.5, color='black')
