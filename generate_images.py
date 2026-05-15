@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # Set random seeds
-np.random.seed(config.get('data', {}).get('seed', 42))
+np.random.seed(42)
 
 # Tufte-style configuration
 signalplot.apply(font_family='serif')
@@ -141,7 +141,7 @@ def train_tft(
 
     # Ensure reproducibility
     torch.manual_seed(42)
-    np.random.seed(config.get('data', {}).get('seed', 42))
+    np.random.seed(42)
 
     tft = TemporalFusionTransformer.from_dataset(
         training,

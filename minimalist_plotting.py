@@ -536,7 +536,7 @@ def example_usage():
     """Example of how to use the plotting utilities."""
     # Create sample data
     years = np.arange(2000, 2023, 2)
-    np.random.seed(config.get('data', {}).get('seed', 42))
+    np.random.seed(42)
     values = 50 + 0.5 * (years - 2000) + np.random.randn(len(years)) * 5
     
     df = pd.DataFrame({

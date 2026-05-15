@@ -51,7 +51,6 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 
 # Set random seeds
 torch.manual_seed(42)
-np.random.seed(42)
 
 # Prepare data for TFT
 df_tft = df.copy()
@@ -247,6 +246,7 @@ torch.save(best_tft.state_dict(), 'tft_model.pth')
 
 # Save dataset for inference
 import pickle
+np.random.seed(42)
 with open('tft_dataset.pkl', 'wb') as f:
     pickle.dump(training, f)
 
