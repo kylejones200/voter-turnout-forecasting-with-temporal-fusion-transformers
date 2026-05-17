@@ -290,73 +290,75 @@ def plot_forecast_comparison(
     train_end_idx: int,
 ):
     """Plot TFT vs ARIMA forecasts with uncertainty bands."""
-    if plot:
-        fig, ax = plt.subplots(figsize=(14, 7))
+    if not plot:
+        return
 
-        # Historical data
-        historical_dates = ts.index[:train_end_idx]
-        ax.plot(
-            historical_dates[-30:],
-            ts.values[train_end_idx - 30 : train_end_idx],
-            "k-",
-            linewidth=2,
-            label="Historical",
-            alpha=0.7,
-        )
+    fig, ax = plt.subplots(figsize=(14, 7))
 
-        ax.plot(
-            ts_test.index,
-            ts_test.values,
-            "o-",
-            linewidth=2,
-            markersize=10,
-            label="Actual",
-            color="black",
-        )
+    # Historical data
+    historical_dates = ts.index[:train_end_idx]
+    ax.plot(
+        historical_dates[-30:],
+        ts.values[train_end_idx - 30 : train_end_idx],
+        "k-",
+        linewidth=2,
+        label="Historical",
+        alpha=0.7,
+    )
 
-        # TFT forecast with 80% interval
-        tft_pred_lower = predictions.numpy()[: len(ts_test), 1]  # 10th percentile
-        tft_pred_upper = predictions.numpy()[: len(ts_test), 5]  # 90th percentile
-        ax.fill_between(
-            ts_test.index,
-            tft_pred_lower,
-            tft_pred_upper,
-            alpha=0.2,
-            color="green",
-            label="TFT 80% Interval",
-        )
-        ax.plot(
-            ts_test.index,
-            tft_pred_median[: len(ts_test)],
-            "-",
-            linewidth=2,
-            label="TFT Forecast",
-            color="green",
-        )
+    ax.plot(
+        ts_test.index,
+        ts_test.values,
+        "o-",
+        linewidth=2,
+        markersize=10,
+        label="Actual",
+        color="black",
+    )
 
-        # ARIMA forecast
-        ax.plot(
-            ts_test.index,
-            arima_forecast,
-            "--",
-            linewidth=2,
-            label="ARIMA Forecast",
-            color="blue",
-        )
+    # TFT forecast with 80% interval
+    tft_pred_lower = predictions.numpy()[: len(ts_test), 1]  # 10th percentile
+    tft_pred_upper = predictions.numpy()[: len(ts_test), 5]  # 90th percentile
+    ax.fill_between(
+        ts_test.index,
+        tft_pred_lower,
+        tft_pred_upper,
+        alpha=0.2,
+        color="green",
+        label="TFT 80% Interval",
+    )
+    ax.plot(
+        ts_test.index,
+        tft_pred_median[: len(ts_test)],
+        "-",
+        linewidth=2,
+        label="TFT Forecast",
+        color="green",
+    )
 
-        # Forecast boundary
-        ax.axvline(
-            ts_test.index[0], color="gray", linestyle=":", linewidth=1, alpha=0.5
-        )
+    # ARIMA forecast
+    ax.plot(
+        ts_test.index,
+        arima_forecast,
+        "--",
+        linewidth=2,
+        label="ARIMA Forecast",
+        color="blue",
+    )
 
-        ax.set_ylabel("Turnout Rate (%)", fontsize=11)
-        ax.set_title(
-            "TFT vs ARIMA: Multi-Horizon Forecasting", fontsize=13, fontweight="bold"
-        )
-        ax.legend(loc="best", frameon=True, fancybox=True, shadow=True)
-        plt.tight_layout()
-        plt.savefig("tft_vs_arima.png")
-        plt.show()
+    # Forecast boundary
+    ax.axvline(
+        ts_test.index[0], color="gray", linestyle=":", linewidth=1, alpha=0.5
+    )
+
+    ax.set_ylabel("Turnout Rate (%)", fontsize=11)
+    ax.set_title(
+        "TFT vs ARIMA: Multi-Horizon Forecasting", fontsize=13, fontweight="bold"
+    )
+    ax.legend(loc="best", frameon=True, fancybox=True, shadow=True)
+    plt.tight_layout()
+    plt.savefig("tft_vs_arima.png")
+    plt.show()
 
 
 def save_model_and_dataset(best_tft, training, val_dataloader):
