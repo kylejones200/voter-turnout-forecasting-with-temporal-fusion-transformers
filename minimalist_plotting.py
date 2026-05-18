@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import signalplot
-import yaml
-from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.seasonal import seasonal_decompose
 
 
@@ -29,9 +27,7 @@ def load_config(config_path=None):
         return _yaml.safe_load(_f) or {}
 
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -58,7 +54,6 @@ def plot_time_series_with_groups(
 ):
     """
     Create a minimalist time series plot with multiple groups (e.g., presidential vs midterm).
-
     Parameters
     ----------
     df : pd.DataFrame
@@ -93,14 +88,11 @@ def plot_time_series_with_groups(
     fig, ax : matplotlib figure and axes objects
     """
     setup_minimalist_style()
-
     if plot:
         fig, ax = plt.subplots(figsize=figsize)
-
         # Default colors and styles
         default_colors = ["black", "gray", "#666666", "#999999"]
         default_linestyles = ["-", "--", "-.", ":"]
-
         if group_col is None:
             # Single line plot
             ax.plot(
@@ -113,10 +105,8 @@ def plot_time_series_with_groups(
         else:
             # Multiple groups
             groups = df[group_col].unique()
-
             for i, group_val in enumerate(groups):
                 group_data = df[df[group_col] == group_val].sort_values(time_col)
-
                 # Get color and linestyle
                 color = np.select(
                     [colors is None, isinstance(colors, dict)],
@@ -126,25 +116,20 @@ def plot_time_series_with_groups(
                     ],
                     default=colors[i % len(colors)],
                 )
-
                 linestyle = np.select(
                     [linestyles is None, isinstance(linestyles, dict)],
                     [
                         default_linestyles[i % len(default_linestyles)],
-                        linestyles.get(
-                            group_val, default_linestyles[i % len(default_linestyles)]
-                        ),
+                        linestyles.get(group_val, default_linestyles[i % len(default_linestyles)]),
                     ],
                     default=linestyles[i % len(linestyles)],
                 )
-
                 # Get label
                 label = np.where(
                     group_labels is None,
                     str(group_val),
                     group_labels.get(group_val, str(group_val)),
                 )
-
                 ax.plot(
                     group_data[time_col],
                     group_data[value_col],
@@ -158,13 +143,11 @@ def plot_time_series_with_groups(
         ax.set_xlabel(xlabel or time_col, fontsize=12)
         ax.set_ylabel(ylabel or value_col, fontsize=12)
         ax.set_title(title or f"{value_col} over Time", fontsize=13, pad=10)
-
         # Add legend if groups are present
         if group_col is not None:
             ax.legend(loc="upper right", frameon=False, fontsize=11)
 
         plt.tight_layout()
-
         if save_path:
             plt.savefig(save_path, dpi=dpi, bbox_inches="tight")
         logger.info(f"Saved figure to '{save_path}'")
@@ -186,7 +169,6 @@ def plot_trend_with_label(
 ):
     """
     Plot a trend line with label at the end of the line.
-
     Parameters
     ----------
     df : pd.DataFrame
@@ -215,11 +197,9 @@ def plot_trend_with_label(
     fig, ax : matplotlib figure and axes objects
     """
     setup_minimalist_style()
-
     if plot:
         fig, ax = plt.subplots(figsize=figsize)
         ax.plot(df[time_col], trend_values, linewidth=1.5, color="black", linestyle="-")
-
         # Add label at the end of the trendline
         last_time = df[time_col].iloc[-1]
         # Handle both array and Series
@@ -232,17 +212,12 @@ def plot_trend_with_label(
             f" {label_text}",
             fontsize=11,
             verticalalignment="center",
-            bbox=dict(
-                boxstyle="round,pad=0.3", facecolor="white", edgecolor="none", alpha=0.8
-            ),
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="none", alpha=0.8),
         )
-
         ax.set_xlabel(xlabel or time_col, fontsize=12)
         ax.set_ylabel(ylabel or "Value", fontsize=12)
         ax.set_title(title, fontsize=13, pad=10)
-
         plt.tight_layout()
-
         if save_path:
             plt.savefig(save_path, dpi=dpi, bbox_inches="tight")
         logger.info(f"Saved figure to '{save_path}'")
@@ -267,7 +242,6 @@ def plot_detrended_with_groups(
 ):
     """
     Plot detrended data with groups, showing deviation from trend.
-
     Parameters
     ----------
     df : pd.DataFrame
@@ -302,20 +276,15 @@ def plot_detrended_with_groups(
     fig, ax : matplotlib figure and axes objects
     """
     setup_minimalist_style()
-
     if plot:
         fig, ax = plt.subplots(figsize=figsize)
-
         default_colors = ["black", "gray", "#666666", "#999999"]
         default_linestyles = ["-", "--", "-.", ":"]
-
         groups = df[group_col].unique()
-
         for i, group_val in enumerate(groups):
             group_mask = df[group_col] == group_val
             group_data = df[group_mask].sort_values(time_col)
             group_detrended = np.array(detrended_values)[group_mask]
-
             # Get color and linestyle
             color = np.select(
                 [colors is None, isinstance(colors, dict)],
@@ -325,25 +294,20 @@ def plot_detrended_with_groups(
                 ],
                 default=colors[i % len(colors)],
             )
-
             linestyle = np.select(
                 [linestyles is None, isinstance(linestyles, dict)],
                 [
                     default_linestyles[i % len(default_linestyles)],
-                    linestyles.get(
-                        group_val, default_linestyles[i % len(default_linestyles)]
-                    ),
+                    linestyles.get(group_val, default_linestyles[i % len(default_linestyles)]),
                 ],
                 default=linestyles[i % len(linestyles)],
             )
-
             # Get label
             label = np.where(
                 group_labels is None,
                 str(group_val),
                 group_labels.get(group_val, str(group_val)),
             )
-
             ax.plot(
                 group_data[time_col],
                 group_detrended,
@@ -355,14 +319,11 @@ def plot_detrended_with_groups(
 
         # Add zero reference line
         ax.axhline(y=0, color="black", linestyle=":", linewidth=0.8, alpha=0.5)
-
         ax.set_xlabel(xlabel or time_col, fontsize=12)
         ax.set_ylabel(ylabel, fontsize=12)
         ax.set_title(title, fontsize=13, pad=10)
         ax.legend(loc="upper right", frameon=False, fontsize=11)
-
         plt.tight_layout()
-
         if save_path:
             plt.savefig(save_path, dpi=dpi, bbox_inches="tight")
         logger.info(f"Saved figure to '{save_path}'")
@@ -390,7 +351,6 @@ def plot_forecast_with_history(
 ):
     """
     Plot historical data with forecast, showing confidence intervals.
-
     Parameters
     ----------
     historical_df : pd.DataFrame
@@ -431,10 +391,8 @@ def plot_forecast_with_history(
     fig, ax : matplotlib figure and axes objects
     """
     setup_minimalist_style()
-
     if plot:
         fig, ax = plt.subplots(figsize=figsize)
-
         # Plot historical data
         if group_col is None:
             ax.plot(
@@ -449,15 +407,12 @@ def plot_forecast_with_history(
             groups = historical_df[group_col].unique()
             default_colors = ["black", "gray"]
             default_linestyles = ["-", "--"]
-
             for i, group_val in enumerate(groups):
-                group_data = historical_df[
-                    historical_df[group_col] == group_val
-                ].sort_values(time_col)
+                group_data = historical_df[historical_df[group_col] == group_val].sort_values(
+                    time_col
+                )
                 label = (
-                    group_labels.get(group_val, str(group_val))
-                    if group_labels
-                    else str(group_val)
+                    group_labels.get(group_val, str(group_val)) if group_labels else str(group_val)
                 )
                 ax.plot(
                     group_data[time_col],
@@ -469,10 +424,7 @@ def plot_forecast_with_history(
                 )
 
         # Plot forecast
-        ax.plot(
-            future_times, forecast_values, linewidth=1.5, color="black", linestyle=":"
-        )
-
+        ax.plot(future_times, forecast_values, linewidth=1.5, color="black", linestyle=":")
         # Add confidence interval if provided
         if lower_bound is not None and upper_bound is not None:
             ax.fill_between(
@@ -489,7 +441,6 @@ def plot_forecast_with_history(
         last_forecast_time = np.where(
             hasattr(future_times, "iloc"), future_times.iloc[-1], future_times[-1]
         )
-
         last_forecast_value = np.where(
             hasattr(forecast_values, "iloc"),
             forecast_values.iloc[-1],
@@ -501,11 +452,8 @@ def plot_forecast_with_history(
             f" {forecast_label}",
             fontsize=11,
             verticalalignment="center",
-            bbox=dict(
-                boxstyle="round,pad=0.3", facecolor="white", edgecolor="none", alpha=0.8
-            ),
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="none", alpha=0.8),
         )
-
         # Vertical line at last data point
         last_historical_time = historical_df[time_col].max()
         ax.axvline(
@@ -515,14 +463,11 @@ def plot_forecast_with_history(
             linewidth=0.8,
             alpha=0.5,
         )
-
         ax.set_xlabel(xlabel or time_col, fontsize=12)
         ax.set_ylabel(ylabel or value_col, fontsize=12)
         ax.set_title(title, fontsize=13, pad=10)
         ax.legend(loc="upper right", frameon=False, fontsize=11)
-
         plt.tight_layout()
-
         if save_path:
             plt.savefig(save_path, dpi=dpi, bbox_inches="tight")
         logger.info(f"Saved figure to '{save_path}'")
@@ -543,7 +488,6 @@ def plot_statistical_decomposition(
 ):
     """
     Plot statistical decomposition (trend, seasonal, residual).
-
     Parameters
     ----------
     df : pd.DataFrame
@@ -571,20 +515,15 @@ def plot_statistical_decomposition(
     decomposition : statsmodels decomposition object or None
     """
     setup_minimalist_style()
-
     df_sorted = df.sort_values(time_col).copy()
-
     # Create full time series index
     time_min = df_sorted[time_col].min()
     time_max = df_sorted[time_col].max()
-
     # For election data, assume 2-year intervals
     all_times = np.arange(time_min, time_max + 1, 2)
-
     # Create indexed series
     ts_indexed = df_sorted.set_index(time_col)[value_col]
     ts_full = pd.Series(index=all_times, dtype=float)
-
     for time_val in all_times:
         if time_val in ts_indexed.index:
             ts_full[time_val] = ts_indexed[time_val]
@@ -592,26 +531,21 @@ def plot_statistical_decomposition(
     # Interpolate missing values
     ts_full = ts_full.interpolate(method="linear")
     ts_full.index = pd.to_datetime(ts_full.index.astype(str))
-
     try:
         decomposition = seasonal_decompose(
             ts_full, model=model, period=period, extrapolate_trend="freq"
         )
-
         # Create minimalist decomposition plot
         if plot:
             fig, axes = plt.subplots(4, 1, figsize=figsize, sharex=True)
-
             axes[0].plot(ts_full.index, ts_full.values, linewidth=1.5, color="black")
             axes[0].set_ylabel("Original", fontsize=11)
-
             year_range_str = f"{time_min}-{time_max}"
             axes[0].set_title(
                 title or f"Statistical Decomposition ({year_range_str})",
                 fontsize=13,
                 pad=10,
             )
-
             axes[1].plot(
                 decomposition.trend.index,
                 decomposition.trend.values,
@@ -619,7 +553,6 @@ def plot_statistical_decomposition(
                 color="black",
             )
             axes[1].set_ylabel("Trend", fontsize=11)
-
             axes[2].plot(
                 decomposition.seasonal.index,
                 decomposition.seasonal.values,
@@ -627,7 +560,6 @@ def plot_statistical_decomposition(
                 color="black",
             )
             axes[2].set_ylabel("Seasonal", fontsize=11)
-
             axes[3].plot(
                 decomposition.resid.index,
                 decomposition.resid.values,
@@ -636,14 +568,12 @@ def plot_statistical_decomposition(
             )
             axes[3].set_ylabel("Residual", fontsize=11)
             axes[3].set_xlabel("Year", fontsize=12)
-
             # Remove top and right spines
             for ax in axes:
                 ax.spines["top"].set_visible(False)
                 ax.spines["right"].set_visible(False)
 
             plt.tight_layout()
-
             if save_path:
                 plt.savefig(save_path, dpi=dpi, bbox_inches="tight")
             logger.info(f"Saved decomposition to '{save_path}'")
@@ -662,7 +592,6 @@ def example_usage():
     years = np.arange(2000, 2023, 2)
     np.random.seed(42)
     values = 50 + 0.5 * (years - 2000) + np.random.randn(len(years)) * 5
-
     df = pd.DataFrame(
         {
             "Year": years,
@@ -670,7 +599,6 @@ def example_usage():
             "Group": ["A" if i % 2 == 0 else "B" for i in range(len(years))],
         }
     )
-
     # Example 1: Simple time series with groups
     plot_time_series_with_groups(
         df,
@@ -682,7 +610,6 @@ def example_usage():
         save_path="example_time_series.png",
     )
     plt.close()
-
     # Example 2: Trend with label
     trend = 50 + 0.5 * (df["Year"] - 2000)
     plot_trend_with_label(
@@ -693,7 +620,6 @@ def example_usage():
         save_path="example_trend.png",
     )
     plt.close()
-
     logger.info("Example plots created!")
 
 

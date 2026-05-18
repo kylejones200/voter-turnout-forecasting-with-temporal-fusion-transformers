@@ -5,6 +5,8 @@ description = "Companion code for Medium article: voter turnout forecasting with
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "pydantic>=2.10.0",
+    "pytest>=8.0",
     "lightning>=2.5.0",
     "matplotlib>=3.10.9",
     "numpy>=2.4.4",
@@ -28,3 +30,7 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
