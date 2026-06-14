@@ -56,3 +56,10 @@ def test_config_yaml_is_parseable() -> None:
     yaml = pytest.importorskip("yaml")
     data = yaml.safe_load(config.read_text(encoding="utf-8"))
     assert data is not None or data is None
+
+
+def test_dataset_exists() -> None:
+    data_path = REPO_ROOT / "data" / "us_voter_turnout.csv"
+    assert data_path.is_file(), "expected data/us_voter_turnout.csv"
+    header = data_path.read_text(encoding="utf-8").splitlines()[0]
+    assert "Year" in header and "Turnout_Rate" in header

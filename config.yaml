@@ -1,6 +1,6 @@
 data:
+  path: data/us_voter_turnout.csv
   seed: 42
-  value_col: Value
 model:
   alpha: 0.7
   batch_size: 32

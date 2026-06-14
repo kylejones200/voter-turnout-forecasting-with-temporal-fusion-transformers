@@ -51,6 +51,7 @@ def plot_time_series_with_groups(
     figsize=(12, 6),
     save_path=None,
     dpi=300,
+    plot=True,
 ):
     """
     Create a minimalist time series plot with multiple groups (e.g., presidential vs midterm).
@@ -166,6 +167,7 @@ def plot_trend_with_label(
     figsize=(12, 6),
     save_path=None,
     dpi=300,
+    plot=True,
 ):
     """
     Plot a trend line with label at the end of the line.
@@ -239,6 +241,7 @@ def plot_detrended_with_groups(
     figsize=(12, 6),
     save_path=None,
     dpi=300,
+    plot=True,
 ):
     """
     Plot detrended data with groups, showing deviation from trend.
@@ -348,6 +351,7 @@ def plot_forecast_with_history(
     figsize=(12, 6),
     save_path=None,
     dpi=300,
+    plot=True,
 ):
     """
     Plot historical data with forecast, showing confidence intervals.
@@ -485,6 +489,7 @@ def plot_statistical_decomposition(
     figsize=(12, 10),
     save_path=None,
     dpi=300,
+    plot=True,
 ):
     """
     Plot statistical decomposition (trend, seasonal, residual).

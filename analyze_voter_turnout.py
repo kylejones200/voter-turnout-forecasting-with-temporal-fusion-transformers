@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import signalplot
+import yaml
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.seasonal import seasonal_decompose
 
@@ -20,15 +21,16 @@ def load_config(config_path=None):
         config_path = Path(__file__).parent / "config.yaml"
     if not config_path.exists():
         return {}
-    with open(config_path) as _f:
-        return _yaml.safe_load(_f) or {}
+    with open(config_path) as handle:
+        return yaml.safe_load(handle) or {}
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 # Set up paths
 BASE_DIR = Path(__file__).parent
-DATA_PATH = BASE_DIR.parent / "2025-11-12_us_voter_turnout.csv"
+config = load_config()
+DATA_PATH = BASE_DIR / "data" / "us_voter_turnout.csv"
 IMAGES_DIR_FULL = BASE_DIR / "images_full"
 IMAGES_DIR_MODERN = BASE_DIR / "images_modern"
 
@@ -44,8 +46,10 @@ signalplot.apply(font_family="serif")
 def load_voter_turnout_data(data_path, start_year=1789):
     """Load actual US voter turnout data."""
     df = pd.read_csv(data_path)
-    # Clean column names (remove duplicates)
-    df.columns = ["Year", "Turnout_Rate", "Election_Type"]
+    if "Turnout Rate" in df.columns:
+        df = df.rename(columns={"Turnout Rate": "Turnout_Rate"})
+    if "Election_Type" not in df.columns and len(df.columns) >= 3:
+        df.columns = ["Year", "Turnout_Rate", "Election_Type"]
     # Convert turnout rate to numeric
     df["Turnout_Rate"] = pd.to_numeric(df["Turnout_Rate"], errors="coerce")
     # Create boolean for presidential elections
@@ -133,7 +137,7 @@ def calculate_presidential_effect(df, trend):
     return avg_presidential_effect
 
 
-def visualize_time_series(df, trend, images_dir, year_range_str=None, plot: bool = False):
+def visualize_time_series(df, trend, images_dir, year_range_str=None, plot: bool = True):
     """Create minimalist time series visualizations."""
     pres_data = df[df["Is_Presidential"]].sort_values("Year")
     midterm_data = df[~df["Is_Presidential"]].sort_values("Year")
@@ -222,7 +226,7 @@ def visualize_time_series(df, trend, images_dir, year_range_str=None, plot: bool
     logger.info(f"Saved all visualizations to '{images_dir}'")
 
 
-def perform_statistical_decomposition(df, images_dir, plot: bool = False):
+def perform_statistical_decomposition(df, images_dir, plot: bool = True):
     """Perform statistical decomposition using statsmodels with minimalist styling."""
     df_sorted = df.sort_values("Year").copy()
     all_years = np.arange(df_sorted["Year"].min(), df_sorted["Year"].max() + 1, 2)
@@ -292,7 +296,7 @@ def perform_statistical_decomposition(df, images_dir, plot: bool = False):
         return None
 
 
-def forecast_turnout(df, trend_model, n_years_ahead=10, images_dir=None, plot: bool = False):
+def forecast_turnout(df, trend_model, n_years_ahead=10, images_dir=None, plot: bool = True):
     """Forecast future turnout using linear trend with minimalist styling."""
     last_year = df["Year"].max()
     future_years = np.arange(last_year + 2, last_year + 2 + n_years_ahead * 2, 2)
@@ -391,7 +395,7 @@ def create_summary_statistics(
 
 def run_analysis(start_year, images_dir, period_name):
     """Run analysis for a specific time period."""
-    logger.info("=== Analysis: {period_name} ===")
+    logger.info("=== Analysis: %s ===", period_name)
     # Load data
     logger.info(f"\n1. Loading voter turnout data ({start_year}+)...")
     df = load_voter_turnout_data(DATA_PATH, start_year=start_year)

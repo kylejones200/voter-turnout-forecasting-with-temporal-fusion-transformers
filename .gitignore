@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-# Secrets 
+# Secrets
 .env
 .env.*
 !.env.example
@@ -31,3 +31,12 @@ node_modules/
 .AppleDouble
 # Backup files (may contain secrets)
 *.bak
+# Generated outputs
+images/
+images_full/
+images_modern/
+analysis_summary.txt
+*.pth
+*.pkl
+lightning_logs/
+checkpoints/
